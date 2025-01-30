@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Object Detection</title>
+  <style>
+    #liveView {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    .highlighter {
+      position: absolute;
+      border: 2px solid red;
+      background-color: rgba(255, 0, 0, 0.3);
+      z-index: 2;
+    }
+    .info {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 12px;
+      padding: 2px;
+      border-radius: 4px;
+      z-index: 3;
+    }
+    #webcamButton {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 4;
+    }
+  </style>
+</head>
+<body>
+  <div id="liveView">
+    <video id="webcam" autoplay playsinline></video>
+  </div>
+  <button id="webcamButton">Enable Webcam</button>
+
+  <script type="module">
+    import { ObjectDetector, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2";
+
+    let objectDetector;
+    let runningMode = "IMAGE";
+
+    const initializeObjectDetector = async () => {
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+      );
+      objectDetector = await ObjectDetector.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite",
+          delegate: "GPU",
+        },
+        scoreThreshold: 0.5,
+        runningMode: runningMode,
+      });
+      console.log("Object Detector Initialized");
+    };
+
+    initializeObjectDetector();
+
+    const liveView = document.getElementById("liveView");
+    const video = document.getElementById("webcam");
+    const webcamButton = document.getElementById("webcamButton");
+    let lastVideoTime = -1;
+    let lastDetectionTime = 0;
+    const detectionCooldown = 2000; // Cooldown for 2 seconds
+    let resetTimeout;
+
+    if (navigator.mediaDevices?.getUserMedia) {
+      webcamButton.addEventListener("click", enableCam);
+    } else {
+      alert("Webcam not supported in this browser.");
+    }
+
+    async function enableCam() {
+      if (!objectDetector) {
+        alert("Object detector is still loading. Please wait...");
+        return;
+      }
+      webcamButton.style.display = "none";
+      const constraints = { video: true };
+      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+        video.srcObject = stream;
+        video.addEventListener("loadeddata", predictWebcam);
+      }).catch((err) => console.error("Webcam error:", err));
+    }
+
+    async function predictWebcam() {
+      if (runningMode === "IMAGE") {
+        runningMode = "VIDEO";
+        await objectDetector.setOptions({ runningMode: "VIDEO" });
+      }
+      const startTimeMs = performance.now();
+      if (video.currentTime !== lastVideoTime) {
+        lastVideoTime = video.currentTime;
+        const detections = await objectDetector.detectForVideo(video, startTimeMs);
+        displayVideoDetections(detections);
+      }
+      window.requestAnimationFrame(predictWebcam);
+    }
+
+    function displayVideoDetections(result) {
+      document.querySelectorAll(".highlighter, .info").forEach((el) => el.remove());
+      let currentTime = new Date().getTime();
+      let personDetected = false;
+
+      const scaleX = video.offsetWidth / video.videoWidth;
+      const scaleY = video.offsetHeight / video.videoHeight;
+
+      for (const detection of result.detections) {
+        const { categoryName, score } = detection.categories[0];
+        if (score < 0.5) continue;
+
+        const highlighter = document.createElement("div");
+        highlighter.className = "highlighter";
+        highlighter.style.left = `${detection.boundingBox.originX * scaleX}px`;
+        highlighter.style.top = `${detection.boundingBox.originY * scaleY}px`;
+        highlighter.style.width = `${detection.boundingBox.width * scaleX}px`;
+        highlighter.style.height = `${detection.boundingBox.height * scaleY}px`;
+        liveView.appendChild(highlighter);
+
+        if (categoryName === "person" && score > 0.9) {
+          personDetected = true;
+          if (currentTime - lastDetectionTime > detectionCooldown) {
+            console.log("Obstacle");
+            speakText("Obstacle");
+            lastDetectionTime = currentTime;
+
+            clearTimeout(resetTimeout);
+            resetTimeout = setTimeout(() => {
+              lastDetectionTime = 0;
+            }, detectionCooldown);
+          }
+
+          const info = document.createElement("div");
+          info.className = "info";
+          info.style.left = `${detection.boundingBox.originX * scaleX}px`;
+          info.style.top = `${(detection.boundingBox.originY * scaleY) - 20}px`;
+          info.textContent = "Obstacle";
+          liveView.appendChild(info);
+        }
+      }
+    }
+
+    function speakText(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>

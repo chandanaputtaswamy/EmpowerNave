@@ -1,0 +1,63 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: url('img2.jpeg'); /* Use the same background as the homepage */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: black;
+}
+
+/* Header styling for the About Us page */
+.header {
+    text-align: center;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow effect */
+}
+
+.header h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: black; /* Dark teal */
+}
+
+.header p {
+    font-size: 18px;
+    color: black;
+    line-height: 1.6;
+}
+
+/* Navigation bar for all pages */
+.top-left-nav {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: flex;
+    gap: 15px;
+}
+
+/* Styling for navigation links */
+.nav-link {
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #264653;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #2a9d8f; /* Lighter teal on hover */
+}

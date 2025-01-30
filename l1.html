@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #89c4f4, #f3f4f6);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('img3.jpeg');
+            background-size: 1300px 700px;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .container {
+            background: transparent;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            display: none;
+            color: black;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="tel"] {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #56595e;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #d6d6d6;
+            cursor: not-allowed;
+        }
+
+        button:hover:enabled {
+            background-color: #0056b3;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .link a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container active" id="loginContainer">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email ID</label>
+                <input type="email" id="email" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required />
+            </div>
+            <button type="submit" id="loginButton">Login</button>
+        </form>
+        <div class="link">
+            <p><a href="#">Forgot Password?</a></p>
+            <p><a href="#" id="signUpLink">Sign Up</a></p>
+        </div>
+    </div>
+
+    <div class="container" id="signUpContainer">
+        <h1>Sign Up</h1>
+        <form id="signUpForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter your full name" required />
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="Enter your phone number" required />
+            </div>
+            <div class="form-group">
+                <label for="signUpEmail">Email ID</label>
+                <input type="email" id="signUpEmail" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+                <label for="signUpPassword">Password</label>
+                <input type="password" id="signUpPassword" placeholder="Enter your password" required />
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required />
+            </div>
+            <button type="submit" id="signUpButton">Sign Up</button>
+        </form>
+        <div class="link">
+            <p><a href="#" id="backToLogin">Back to Login</a></p>
+        </div>
+    </div>
+
+    <script>
+        const loginContainer = document.getElementById('loginContainer');
+        const signUpContainer = document.getElementById('signUpContainer');
+        const signUpLink = document.getElementById('signUpLink');
+        const backToLogin = document.getElementById('backToLogin');
+
+        signUpLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            loginContainer.classList.remove('active');
+            signUpContainer.classList.add('active');
+        });
+
+        backToLogin.addEventListener('click', function (e) {
+            e.preventDefault();
+            signUpContainer.classList.remove('active');
+            loginContainer.classList.add('active');
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Redirect to map24.html
+            window.location.href = 'map24.html';
+        });
+
+        document.getElementById('signUpForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            window.location.href = 'map24.html';
+        });
+    </script>
+</body>
+
+</html>
